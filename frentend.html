@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Car Price Prediction</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        body {
+            height: 100vh;
+            background: url('https://images.unsplash.com/photo-1493238792000-8113da705763') no-repeat center center/cover;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Dark overlay for readability */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .container {
+            position: relative;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(15px);
+            padding: 35px;
+            width: 420px;
+            border-radius: 20px;
+            text-align: center;
+            color: white;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+        }
+
+        h1 {
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        h3 {
+            font-weight: 300;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 10px;
+            border: none;
+            outline: none;
+            font-size: 14px;
+        }
+
+        select, input {
+            background: rgba(255,255,255,0.9);
+            color: black;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 15px;
+            border-radius: 10px;
+            border: none;
+            background: linear-gradient(45deg, #00c6ff, #0072ff);
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #00ffcc;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <!-- Step 1 -->
+    <h1>Car Price Prediction</h1>
+
+    <!-- Step 2 -->
+    <h3>This app predicts the price of the car you want to sell. Kindly fill the details below</h3>
+
+    <!-- Step 3 -->
+    <!-- <select id="company">
+        <option value="">Select Company</option>
+         <option>Hyundai</option>
+    <option>Mahindra</option>
+    <option>Maruti</option>
+    <option>Ford</option>
+    <option>Skoda</option>
+    <option>Audi</option>
+    <option>Toyota</option>
+    <option>Renault</option>
+    <option>Honda</option>
+    <option>Datsun</option>
+    <option>Mitsubishi</option>
+    <option>Tata</option>
+    <option>Volkswagen</option>
+    <option>Chevrolet</option>
+    <option>Mini</option>
+    <option>BMW</option>
+    <option>Nissan</option>
+    <option>Hindustan</option>
+    <option>Fiat</option>
+    <option>Force</option>
+    <option>Mercedes</option>
+    <option>Jaguar</option>
+    <option>Jeep</option>
+    <option>Volvo</option>
+       <select id="company"> -->
+    
+   
+</select>
+    </select>
+
+    <select id="model">
+        <option value="">Select Model</option>
+       <option>Hyundai Santro Xing</option>
+    <option>Hyundai Grand i10</option>
+    <option>Ford EcoSport Titanium</option>
+    <option>Ford Figo</option>
+    <option>Hyundai Eon</option>
+    <option>Maruti Suzuki Alto</option>
+    <option>Skoda Fabia Classic</option>
+    <option>Hyundai Elite i20</option>
+    <option>Mahindra Scorpio SLE</option>
+    <option>Audi A8</option>
+    <option>Audi Q7</option>
+    <option>Honda City</option>
+    <option>Toyota Innova</option>
+    <option>Renault Duster</option>
+    <option>Volkswagen Polo</option>
+    <option>BMW 3 Series</option>
+    <option>Mercedes Benz</option>
+    </select>
+
+    <input type="number" id="year" placeholder="Year of Purchase">
+
+    <select id="fuel">
+        <option value="">Select Fuel Type</option>
+       <option>Petrol</option>
+<option>Diesel</option>
+<option>LPG</option>
+    </select>
+
+    <input type="number" id="kms" placeholder="Kilometers Travelled">
+
+    <!-- Step 4 -->
+    <button onclick="predictPrice()">Predict Price</button>
+
+    <!-- Step 5 -->
+    <div id="result">Prediction</div>
+
+</div>
+
+<script>
+async function predictPrice() {
+    // Get values from form
+    const model = document.getElementById("model").value;
+    const year = document.getElementById("year").value;
+    const kms = document.getElementById("kms").value;
+    const fuel = document.getElementById("fuel").value;
+
+    // Validation
+    if (!model || !year || !kms || !fuel) {
+        document.getElementById("result").innerText = "⚠️ Please fill all fields!";
+        return;
+    }
+
+    // Create JSON data
+    const data = {
+        name: model,
+        year: parseInt(year),
+        kms_driven: parseInt(kms),
+        fuel_type: fuel
+    };
+
+    try {
+        // Send request to FastAPI
+        const response = await fetch("http://127.0.0.1:8000/predict", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(data)
+        });
+
+        // Convert response to JSON
+        const result = await response.json();
+
+        // Check response status
+        if (!response.ok) {
+            document.getElementById("result").innerText =
+                "❌ Error: " + (result.detail || "Something went wrong");
+            return;
+        }
+
+        // Display result
+        document.getElementById("result").innerText =
+            "💰 Predicted Price: ₹ " + result.prediction;
+
+    } catch (error) {
+        console.error(error);
+        document.getElementById("result").innerText =
+            "❌ Cannot connect to server!";
+    }
+}
+</script>
